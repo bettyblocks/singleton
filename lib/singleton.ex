@@ -29,7 +29,14 @@ defmodule Singleton do
   def start_child(module, args, name) do
     child_name = name(module, args)
     spec = {Singleton.Manager, [mod: module, args: args, name: name, child_name: child_name]}
-    DynamicSupervisor.start_child(Singleton.Supervisor, spec)
+
+    case DynamicSupervisor.start_child(Singleton.Supervisor, spec) do
+      {:ok, _} = ok_result ->
+        ok_result
+
+      other ->
+        raise "Could not start singleton #{inspect(child_name)}: #{inspect(other, pretty: true)}"
+    end
   end
 
   def stop_child(module, args) do
